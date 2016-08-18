@@ -26,5 +26,5 @@ get.oturep(column=miseq.seq1.trim.contigs.good.unique.good.filter.unique.preclus
 classify.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta, reference=freshwater.bacteria.fasta, taxonomy=freshwater.bacteria.tax, cutoff=80)
 classify.seqs(fasta=unclassified.miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta,count=unclassified.miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table,reference=silva.bacteria.fasta,taxonomy=silva.bacteria.silva.tax, cutoff=80)
 ### Match the taxonomy file with the OTU 0.03 table, and remove all OTUs that do not belong to bacteria, like Chloroplast, Mitochondria, unknown, Archaea, and Eukaryota. 
-### In order to correct possible sequencing bias, we discarded OTUs occurring in less than two samples (cut 1) and less than three samples (cut 2), respectively. Delete the columns of ¡°label¡± and ¡°numOtus, and input the new generated OTU table to R statistical environment.
+### In order to correct possible sequencing bias, we discarded OTUs occurring in less than two samples (cut 1) and less than three samples (cut 2), respectively. Delete the columns of "label" and "numOtus", and input the new generated OTU table to R statistical environment.
 
