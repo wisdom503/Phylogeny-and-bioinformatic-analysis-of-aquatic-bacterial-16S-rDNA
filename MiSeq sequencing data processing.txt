@@ -1,0 +1,30 @@
+## Miseq sequencing data processing
+
+## Raw reads of the 16S rRNA gene sequences were processed using the software package Mothur (V. 1.30.0, http://www.mothur.org, 2013) according to the MiSeq standard operating procedure (Kozich et al, 2013). 
+## Kozich JJ, Westcott SL, Baxter NT, Highlander SK, Schloss PD. (2013). Development of a dual-index sequencing strategy and curation pipeline for analyzing amplicon sequence data on the MiSeq Illumina sequencing platform. Appl Environ Microbiol 79:5112-20.
+
+make.contigs(ffastq=miseq.seq1.fastq, rfastq= miseq.seq2.fastq)
+screen.seqs(fasta=miseq.seq1.trim.contigs.fasta, group=miseq.seq.groups, optimize=start, criteria=90)
+unique.seqs(fasta=miseq.seq1.trim.contigs.good.fasta)
+count.seqs(name= miseq.seq1.trim.contigs.good.names, group= miseq.seq1.trim.good.groups)
+align.seqs(fasta=miseq.seq1.trim.contigs.good.unique.fasta, reference= silva.bacteria.fasta)
+screen.seqs(fasta=miseq.seq1.trim.contigs.good.unique.align, count=miseq.seq1.trim.contigs.good.count_table, optimize=start, criteria=90)
+filter.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.align, vertical=T, trump=.)
+unique.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.fasta, count=miseq.seq1.trim.contigs.good.good.count_table)
+
+pre.cluster(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.fasta, count=miseq.seq1.trim.contigs.good.good.unique.count_table, diffs=2)
+chimera.uchime(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.fasta,count=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.count_table, dereplicate=t)
+remove.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.fasta,accnos=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.accnos)
+
+dist.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, cutoff=0.20)
+cluster(column=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.dist,count=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table)
+make.shared(list=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.list,count=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table, label=0.03)
+get.oturep(column=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.dist,count=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table,fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta,list=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.list, label=0.03)
+
+##Match and change representative sequence name as OTU name in the shared file. Each of the OTU representative sequences was classified using the freshwater bacterial database (Newton et al, 2011) at the recommended bootstrap threshold of 80%. Unclassified representative sequences were further classified using the SILVA v119 database at 80% bootstrap threshold. Newton RJ, Jones SE, Eiler A, Mcmahon KD, Bertilsson S. (2011). A guide to the natural history of freshwater lake bacteria. Microbiol Mol Biol Rev 75:14-49.
+
+classify.seqs(fasta=miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta, reference=freshwater.bacteria.fasta, taxonomy=freshwater.bacteria.tax, cutoff=80)
+classify.seqs(fasta=unclassified.miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta,count=unclassified.miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.denovo.uchime.pick.count_table,reference=silva.bacteria.fasta,taxonomy=silva.bacteria.silva.tax, cutoff=80)
+### Match the taxonomy file with the OTU 0.03 table, and remove all OTUs that do not belong to bacteria, like Chloroplast, Mitochondria, unknown, Archaea, and Eukaryota. 
+### In order to correct possible sequencing bias, we discarded OTUs occurring in less than two samples (cut 1) and less than three samples (cut 2), respectively. Delete the columns of ¡°label¡± and ¡°numOtus, and input the new generated OTU table to R statistical environment.
+

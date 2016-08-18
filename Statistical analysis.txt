@@ -1,0 +1,73 @@
+###statistical analysis
+###Because samples collected from the same mesocosm on two sampling occasions were not independent of each other, we performed repeated-measures approaches to test the significant effects of different treatments on the parameters involved in this study.
+###For environmental characteristics, OTU richness, PD, and SES.PD, and the relative abundance of phylum and of lineages and clades, we first performed the Shapiro-Wilk test of normality.
+x.data <- read.table("parameters x and treatments.txt", header=T, row.names=1, sep="\t")
+shapiro.test(x)
+
+###Then, we conducted repeated-measures analysis of variance tests (ANOVA) and repeated-measures Friedman's tests (when the normality test was violated), which were both followed by post hoc comparisons.
+
+###Repeated-measures analysis of variance tests (ANOVA), followed by post hoc comparisons
+aov.out.tr <- aov(x~ treatment + Error(time/treatment), data=x.data)
+summary(aov.out.tr)
+library(nlme)
+library(multcomp)
+model <- lme(x ~ treatment, random = ~1 | time/treatment, data = x.data, method = "ML")
+posthoc <- glht(model, linfct = mcp(treatment = "Tukey"))
+summary(posthoc)
+
+###Repeated-measures Friedman's tests, followed by post hoc comparisons
+library(agricolae)
+with(x.data, friedman(time, treatment, x, group=FALSE))
+
+###permutational multivariate analysis of variance (PERMANOVA) was used to assess the effects of the different treatments on the changes in BCC.
+library(vegan)
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+factors<-read.table("factors.txt",header=T, row.names=1,sep="\t")
+attach(factors)
+adonis(comm~ temperature * nutrient, data=factors, strata=factors$time, permutations = 999,method = "bray", binary=FALSE)
+adonis(comm~ temperature * nutrient, data=factors, strata=factors$time, permutations = 999, method="jaccard", binary=TRUE)
+
+### permutational analysis of variance (PERANOVA) was used to test the effects of different treatments on the changes in both beta diversity and SES
+library(RVAideMemoire)
+beta.divers<-read.table("beta.diversity.txt",header=T, row.names=1,sep="\t")
+perm.anova(beta.diversity ~ treatment| time, nperm=999, data=beta.divers)
+pairwise.perm.t.test(beta.diversity, treatment, nperm=999, data=beta.divers)
+
+###Both PERMANOVA and PERANOVA do not include repeated-measures modules, we therefore did repeated measures by using strata to block the sampling time
+
+### The relative abundances of the main lineages or clades of bacterioplankton communities (only cut 1 and refraction OTU community) under different treatments were depicted in a heat map.
+taxa<-read.table("the relative abundances of the main lineages or clades.txt",header=T, row.names=1,sep="\t")
+pheatmap(taxa, color = colorRampPalette(rev(c("#D73027", "#FC8D59", "#FEE090", "#FFFFBF", "#E0F3F8", "#91BFDB", "#4575B4")),bias=3.5)(100), border_color = "grey21",cluster_row = FALSE, cluster_cols= FALSE, fontsize = 10, cellwidth = 15, cellheight = 8)
+
+### The incidence-based Jaccard¡¯s dissimilarity and Bray-Curtis dissimilarity of BCC were visualized using non-metric multidimensional scaling (NMDS). 
+library(MASS)
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+comm.dist1<-vegdist(comm, "jaccard",binary=TRUE)
+comm.dist<-vegdist(comm, "bray", binary=FALSE)
+mds<-isoMDS(comm.dist1)
+scores(mds)
+mds<-isoMDS(comm.dist)
+scores(mds)
+###output the data to Sigmaplot to draw the figures
+
+###The relationships between BCC and environmental factors were determined by canonical correlation analysis (CCA).
+library(vegan)
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+env<-read.table("allenv.txt",header=T,row.names=1, sep="\t")
+env<-scale(env)
+cca<-cca(comm,env)
+mod1<-cca(comm~.,env)
+mod1
+vif.cca(mod1)
+### redundant constraints were removed from the env table
+mod0<-cca(comm~1,env)
+mod<-step(mod0,scope=formula(mod1),test="perm")
+mod
+mod$anova
+
+###the selected factors were used to perform CCA
+env<-read.table("selected.env.txt",header=T,row.names=1, sep="\t")
+env<-scale(env)
+cca<-cca(comm, env)
+plot(cca)
+

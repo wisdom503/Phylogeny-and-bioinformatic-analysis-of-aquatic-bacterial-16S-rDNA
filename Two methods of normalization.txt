@@ -1,0 +1,34 @@
+###two methods of normalization
+
+### In order to correct possible sequencing bias, we discarded OTUs occurring in less than two samples (cut 1) and less than three samples (cut 2), respectively. 
+### In R, variance stabilizing transformation (VST) was used to normalize the OTU community data.
+library(phyloseq)
+library(DESeq2)
+cut1.comm<-read.table("cut1.OTU.community.table.txt",header=T, row.names=1,sep="\t")
+cut2.comm<-read.table("cut2.OTU.community.table.txt",header=T, row.names=1,sep="\t")
+group<-read.table("group.txt",header=T, row.names=1,sep="\t")
+group.data <- sample_data(as.data.frame(group))
+cut1.comm.phyloseq <- phyloseq(otu_table(cut1.comm), sample_data(group.data))
+cut2.comm.phyloseq <- phyloseq(otu_table(cut1.comm), sample_data(group.data))
+
+# DESeq conversion 
+cut1.comm.DEseq = phyloseq_to_deseq2(cut1.comm.phyloseq, ~group.data)
+cut2.comm.DEseq = phyloseq_to_deseq2(cut2.comm.phyloseq, ~group.data)
+
+# DESeq2 Variance Stabilization
+cut1.comm.DEseq = estimateSizeFactors(cut1.comm.DEseq)
+cut1.comm.DEseq = estimateDispersions(cut1.comm.DEseq)
+cut1.comm.vst = getVarianceStabilizedData(cut1.comm.DEseq)
+write.table(cut1.comm.vst, ¡°cut1.vst.comm.txt¡±, sep="\t")
+
+cut2.comm.DEseq = estimateSizeFactors(cut1.comm.DEseq)
+cut2.comm.DEseq = estimateDispersions(cut1.comm.DEseq)
+cut2.comm.vst = getVarianceStabilizedData(cut1.comm.DEseq)
+write.table(cut2.comm.vst, ¡°cut2.vst.comm.txt¡±, sep="\t")
+
+###Sub.sample command was also used to normalize the OTU community data in Mothur by randomly sub-sampling the minimum number of sequences in the whole samples.
+sub.sample(shared=cut1.OTU.community.shared)
+sub.sample(shared=cut2.OTU.community.shared)
+###Delete the columns of ¡°label¡± and ¡°numOtus, and input the new generated OTU tables (cut1.subsample.comm.txt and cut2.subsample.comm.txt) to R statistical environment.
+
+

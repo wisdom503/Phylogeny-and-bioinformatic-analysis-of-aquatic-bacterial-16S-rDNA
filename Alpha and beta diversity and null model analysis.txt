@@ -1,0 +1,130 @@
+###alpha and beta diversity and null model analysis
+
+###we used four different methods (two different cutoffs of OTUs multiply by two normalized methods) to denoise the technical stochastic effects.The four different OTU tables, cut1.vst.comm.txt, cut2.vst.comm.txt, cut1.subsample.comm.txt and cut2.subsample.comm.txt were used to calculate appropriate metrics.
+
+library(vegan)
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+OTU.richness <- specnumber(comm)
+matrix.Bray.Curtis.dissimilarity <- as.matrix (vegdist(comm, method="bray", binary=FALSE))
+write.table(matrix.Bray.Curtis.dissimilarity, ¡°Bray.Curtis.dissimilarity.matrix.txt¡±, sep="\t")
+matrix.Jaccard.dissimilarity<- as.matrix (vegdist(comm, method="jaccard", binary=TRUE))
+write.table(matrix.Jaccard.dissimilarity, ¡°Jaccard.dissimilarity.matrix.txt¡±, sep="\t")
+
+###Input the BCC dissimilarity matrix to Excel, and Beta diversity (BCC dissimilarities within treatments on each sampling occasion) was calculated in Excel.
+
+##PD and SES.PD
+## Based on the obtained sequences, a phylogenetic tree was constructed using the FastTree algorithm
+
+FastTree -nt -gtr < miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta > overall.representation.sequence.tree
+
+library(phangorn)
+library(picante)
+phy<-read.tree("overall.representation.sequence.tre")
+phy
+phy<-midpoint(phy)
+comm<-read.table("OTU.comm.txt", header=T, row.names=1,sep="\t")
+match.phy.comm = match.phylo.comm(phy, comm)
+phy = match.phy.comm$phy  
+comm = comm[, phy$tip.label]
+dim(comm);  length(phy$tip.label)  
+###calculate PD
+faith.pd=pd(comm, phy, include.root=T)
+write.table(faith.pd, "faith.pd.result.txt")
+###calculate SES.PD
+ses.pd <- ses.pd(comm, phy, null.model = "taxa.labels", runs = 999, iterations = 1000000)
+write.table(ses.pd, "ses.pd.result.txt")
+
+### Both OTU richness, PD, SES.PD, and beta diversity were calculated in three different ways. First, mesocosms under the same warming scenarios were allocated to the same group that included 2 different nutrient regimes. Second, mesocosms under the same nutrient regime were categorized into 1 group that included 3 different warming scenarios. Finally, mesocosms under different warming scenarios and nutrient regimes were categorized into different groups.
+
+###Null model analysis
+###Permutational analysis of multivariate dispersions (PERMDISP) in the R vegan package was used to test the differences between the observed number of shared species (OTUs) between two observed communities and the expected number of shared species between two average null-expected communities
+nulls.matrix <- replicate(999,randomizeMatrix(comm,null.model="independentswap", iterations = 1000000))
+nulls.means <- apply(nulls.matrix, c(1:2), mean, na.rm=T)
+
+##merge the nulls.means into the community observed OTU table, and make three different groups, nutrient treatment (group1), warming treatment (group2), and different warming and nutrient treatment (group3).
+observ.null.comm<-read.table("observe and Null OTU table.txt",header=T, row.names=1,sep="\t")
+dis <- vegdist(oberv.null.comm)
+mod1<- betadisper(dis, group1)
+mod1
+anova(mod1)
+## Permutation test for F
+permutest(mod1, pairwise = TRUE)
+
+mod2<- betadisper(dis, group2)
+mod2
+anova(mod2)
+## Permutation test for F
+permutest(mod2, pairwise = TRUE)
+
+mod3<- betadisper(dis, group3)
+mod3
+anova(mod3)
+## Permutation test for F
+permutest(mod3, pairwise = TRUE)
+
+### The calculation of the standardized effect size (SES) in the null-model analysis was referred to "Functional and Phylogenetic Ecology in R" written by Nathan Swenson
+
+library(picante)
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+Jaccard.is = function(x) {as.matrix(vegdist(randomizeMatrix(x, null.model="independentswap",iterations = 1000000), method="jaccard", binary=TRUE))}
+nulls = replicate(999, Jaccard.is(comm))
+nulls.means = apply(nulls, c(1:2), mean, na.rm=T)
+nulls.sd = apply(nulls, c(1:2), sd,na.rm=T)
+obs = as.matrix(vegdist(comm,method="jaccard", binary=TRUE))
+SES = (obs - nulls.means)/nulls.sd
+write.table(SES, "SES.txt", step="\t")
+###As alpha and beta diversity, the standardized effect size (SES) was also calculated in three different ways, including warming treatments, nutrient treatments and different warming and nutrient treatments.
+
+###The second null model analysis
+###Because different methods used for null-model analyses frequently yield different results, 2 different null-model analyses of community structure were conducted in this study. The second null model analysis was referred to Chase et al. (2011). Chase JM, Kraft NJ, Smith KG, Vellend M, Inouye BD. (2011). Using null models to disentangle variation in community dissimilarity from variation in ¦Á-diversity. Ecosphere 2:art24.
+
+comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
+raup_crick=function(spXsite, plot_names_in_col1=TRUE, classic_metric=FALSE, split_ties=TRUE, reps=9999, set_all_species_equal=FALSE, as.distance.matrix=TRUE, report_similarity=FALSE){
+
+if(plot_names_in_col1){row.names(spXsite)<-spXsite[,1]
+spXsite<-spXsite[,-1]}
+n_sites<-nrow(spXsite)
+gamma<-ncol(spXsite)
+ceiling(spXsite/max(spXsite))->spXsite
+occur<-apply(spXsite, MARGIN=2, FUN=sum)
+if(set_all_species_equal){occur<-rep(1,gamma)}
+alpha_levels<-sort(unique(apply(spXsite, MARGIN=1, FUN=sum)))
+alpha_table<-data.frame(c(NA), c(NA))
+names(alpha_table)<-c("smaller_alpha", "bigger_alpha")
+col_count<-1
+null_array<-list()
+for(a1 in 1:length(alpha_levels)){for(a2 in a1:length(alpha_levels)){null_shared_spp<-NULL
+for(i in 1:reps){
+com1<-rep(0,gamma)
+com2<-rep(0,gamma)
+com1[sample(1:gamma, alpha_levels[a1], replace=FALSE, prob=occur)]<-1
+com2[sample(1:gamma, alpha_levels[a2], replace=FALSE, prob=occur)]<-1
+null_shared_spp[i]<-sum((com1+com2)>1)}
+null_array[[col_count]]<-null_shared_spp
+alpha_table[col_count, which(names(alpha_table)=="smaller_alpha")]<-alpha_levels[a1]
+alpha_table[col_count, which(names(alpha_table)=="bigger_alpha")]<-alpha_levels[a2]
+col_count<-col_count+1}}
+alpha_table$matching<-paste(alpha_table[,1], alpha_table[,2], sep="_")
+results<-matrix(data=NA, nrow=n_sites, ncol=n_sites, dimnames=list(row.names(spXsite), row.names(spXsite)))
+for(i in 1:n_sites){
+for(j in 1:n_sites){
+n_shared_obs<-sum((spXsite[i,]+spXsite[j,])>1)
+obs_a1<-sum(spXsite[i,])
+obs_a2<-sum(spXsite[j,])
+obs_a_pair<-sort(c(obs_a1, obs_a2))
+null_index<-which(alpha_table$matching==paste(obs_a_pair[1], obs_a_pair[2], sep="_"))
+num_exact_matching_in_null<-sum(null_array[[null_index]]==n_shared_obs)
+num_greater_in_null<-sum(null_array[[null_index]]>n_shared_obs)
+rc<-(num_greater_in_null)/reps
+if(split_ties){
+rc<-((num_greater_in_null+(num_exact_matching_in_null)/2)/reps)}
+if(!classic_metric){rc<-(rc-.5)*2}
+if(report_similarity & !classic_metric){rc<- rc*-1}
+if(report_similarity & classic_metric){rc<- 1-rc}
+results[i,j]<-round(rc, digits=2)}}
+if(as.distance.matrix){results<-as.dist(results)}
+return(results)}
+
+rc=raup_crick(comm)
+rc=as.matrix(rc)
+write.table(raup_crick, "second.null.model.raup_crick.txt",sep="\t")
