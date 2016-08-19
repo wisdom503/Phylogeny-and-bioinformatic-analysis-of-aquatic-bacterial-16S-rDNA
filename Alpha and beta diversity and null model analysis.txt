@@ -6,9 +6,9 @@ library(vegan)
 comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
 OTU.richness <- specnumber(comm)
 matrix.Bray.Curtis.dissimilarity <- as.matrix (vegdist(comm, method="bray", binary=FALSE))
-write.table(matrix.Bray.Curtis.dissimilarity, ¡°Bray.Curtis.dissimilarity.matrix.txt¡±, sep="\t")
+write.table(matrix.Bray.Curtis.dissimilarity, "Bray.Curtis.dissimilarity.matrix.txt", sep="\t")
 matrix.Jaccard.dissimilarity<- as.matrix (vegdist(comm, method="jaccard", binary=TRUE))
-write.table(matrix.Jaccard.dissimilarity, ¡°Jaccard.dissimilarity.matrix.txt¡±, sep="\t")
+write.table(matrix.Jaccard.dissimilarity, "Jaccard.dissimilarity.matrix.txt", sep="\t")
 
 ###Input the BCC dissimilarity matrix to Excel, and Beta diversity (BCC dissimilarities within treatments on each sampling occasion) was calculated in Excel.
 
@@ -76,7 +76,7 @@ write.table(SES, "SES.txt", step="\t")
 ###As alpha and beta diversity, the standardized effect size (SES) was also calculated in three different ways, including warming treatments, nutrient treatments and different warming and nutrient treatments.
 
 ###The second null model analysis
-###Because different methods used for null-model analyses frequently yield different results, 2 different null-model analyses of community structure were conducted in this study. The second null model analysis was referred to Chase et al. (2011). Chase JM, Kraft NJ, Smith KG, Vellend M, Inouye BD. (2011). Using null models to disentangle variation in community dissimilarity from variation in ¦Á-diversity. Ecosphere 2:art24.
+###Because different methods used for null-model analyses frequently yield different results, 2 different null-model analyses of community structure were conducted in this study. The second null model analysis was referred to Chase et al. (2011). Chase JM, Kraft NJ, Smith KG, Vellend M, Inouye BD. (2011). Using null models to disentangle variation in community dissimilarity from variation in alpha diversity. Ecosphere 2:art24.
 
 comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
 raup_crick=function(spXsite, plot_names_in_col1=TRUE, classic_metric=FALSE, split_ties=TRUE, reps=9999, set_all_species_equal=FALSE, as.distance.matrix=TRUE, report_similarity=FALSE){
