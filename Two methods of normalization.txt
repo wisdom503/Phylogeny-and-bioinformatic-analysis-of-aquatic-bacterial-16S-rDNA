@@ -19,16 +19,16 @@ cut2.comm.DEseq = phyloseq_to_deseq2(cut2.comm.phyloseq, ~group.data)
 cut1.comm.DEseq = estimateSizeFactors(cut1.comm.DEseq)
 cut1.comm.DEseq = estimateDispersions(cut1.comm.DEseq)
 cut1.comm.vst = getVarianceStabilizedData(cut1.comm.DEseq)
-write.table(cut1.comm.vst, ¡°cut1.vst.comm.txt¡±, sep="\t")
+write.table(cut1.comm.vst, "cut1.vst.comm.txt", sep="\t")
 
 cut2.comm.DEseq = estimateSizeFactors(cut1.comm.DEseq)
 cut2.comm.DEseq = estimateDispersions(cut1.comm.DEseq)
 cut2.comm.vst = getVarianceStabilizedData(cut1.comm.DEseq)
-write.table(cut2.comm.vst, ¡°cut2.vst.comm.txt¡±, sep="\t")
+write.table(cut2.comm.vst, "cut2.vst.comm.txt", sep="\t")
 
 ###Sub.sample command was also used to normalize the OTU community data in Mothur by randomly sub-sampling the minimum number of sequences in the whole samples.
 sub.sample(shared=cut1.OTU.community.shared)
 sub.sample(shared=cut2.OTU.community.shared)
-###Delete the columns of ¡°label¡± and ¡°numOtus, and input the new generated OTU tables (cut1.subsample.comm.txt and cut2.subsample.comm.txt) to R statistical environment.
+###Delete the columns of "label" and "numOtus", and input the new generated OTU tables (cut1.subsample.comm.txt and cut2.subsample.comm.txt) to R statistical environment.
 
 
