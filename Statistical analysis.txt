@@ -39,7 +39,7 @@ pairwise.perm.t.test(beta.diversity, treatment, nperm=999, data=beta.divers)
 taxa<-read.table("the relative abundances of the main lineages or clades.txt",header=T, row.names=1,sep="\t")
 pheatmap(taxa, color = colorRampPalette(rev(c("#D73027", "#FC8D59", "#FEE090", "#FFFFBF", "#E0F3F8", "#91BFDB", "#4575B4")),bias=3.5)(100), border_color = "grey21",cluster_row = FALSE, cluster_cols= FALSE, fontsize = 10, cellwidth = 15, cellheight = 8)
 
-### The incidence-based Jaccard¡¯s dissimilarity and Bray-Curtis dissimilarity of BCC were visualized using non-metric multidimensional scaling (NMDS). 
+### The incidence-based Jaccard dissimilarity and Bray-Curtis dissimilarity of BCC were visualized using non-metric multidimensional scaling (NMDS). 
 library(MASS)
 comm<-read.table("OTU.comm.txt",header=T, row.names=1,sep="\t")
 comm.dist1<-vegdist(comm, "jaccard",binary=TRUE)
