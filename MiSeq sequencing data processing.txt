@@ -1,3 +1,5 @@
+The codes below were arranged and tested well for phylogenetic analysis, if you use them, wholely or partly, please cite this article "Ren L, He D , Chen Z, Jeppesen E, Lauridsen TL, Søndergaard M , Wu QL . (2017). Warming and nutrient enrichment in combination increase stochasticity and beta diversity of bacterioplankton assemblages across freshwater mesocosms. The ISME Journal,11,613-625."
+
 ## Miseq sequencing data processing
 
 ## Raw reads of the 16S rRNA gene sequences were processed using the software package Mothur (V. 1.30.0, http://www.mothur.org, 2013) according to the MiSeq standard operating procedure (Kozich et al, 2013). 
