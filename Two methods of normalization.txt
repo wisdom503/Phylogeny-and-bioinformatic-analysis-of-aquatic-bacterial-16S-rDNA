@@ -1,3 +1,5 @@
+The codes below were arranged and tested well for phylogenetic analysis, if you use them, wholely or partly, please cite this article "Ren L, He D , Chen Z, Jeppesen E, Lauridsen TL, Søndergaard M , Wu QL . (2017). Warming and nutrient enrichment in combination increase stochasticity and beta diversity of bacterioplankton assemblages across freshwater mesocosms. The ISME Journal,11,613-625."
+
 ###two methods of normalization
 
 ### In order to correct possible sequencing bias, we discarded OTUs occurring in less than two samples (cut 1) and less than three samples (cut 2), respectively. 
