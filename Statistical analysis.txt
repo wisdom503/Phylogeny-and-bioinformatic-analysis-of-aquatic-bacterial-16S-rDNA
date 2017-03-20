@@ -1,3 +1,5 @@
+The codes below were arranged and tested well for phylogenetic analysis, if you use them, wholely or partly, please cite this article "Ren L, He D , Chen Z, Jeppesen E, Lauridsen TL, Søndergaard M , Wu QL . (2017). Warming and nutrient enrichment in combination increase stochasticity and beta diversity of bacterioplankton assemblages across freshwater mesocosms. The ISME Journal,11,613-625."
+
 ###statistical analysis
 ###Because samples collected from the same mesocosm on two sampling occasions were not independent of each other, we performed repeated-measures approaches to test the significant effects of different treatments on the parameters involved in this study.
 ###For environmental characteristics, OTU richness, PD, and SES.PD, and the relative abundance of phylum and of lineages and clades, we first performed the Shapiro-Wilk test of normality.
