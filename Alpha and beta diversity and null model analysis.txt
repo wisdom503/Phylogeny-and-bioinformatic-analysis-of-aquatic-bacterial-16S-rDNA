@@ -1,3 +1,6 @@
+The codes below were arranged and tested well for phylogenetic analysis, if you use them, wholely or partly, please cite this article "Ren L, He D , Chen Z, Jeppesen E, Lauridsen TL, Søndergaard M , Wu QL . (2017). Warming and nutrient enrichment in combination increase stochasticity and beta diversity of bacterioplankton assemblages across freshwater mesocosms. The ISME Journal,11,613-625."
+
+
 ###alpha and beta diversity and null model analysis
 
 ###we used four different methods (two different cutoffs of OTUs multiply by two normalized methods) to denoise the technical stochastic effects.The four different OTU tables, cut1.vst.comm.txt, cut2.vst.comm.txt, cut1.subsample.comm.txt and cut2.subsample.comm.txt were used to calculate appropriate metrics.
@@ -17,7 +20,6 @@ write.table(matrix.Jaccard.dissimilarity, "Jaccard.dissimilarity.matrix.txt", se
 
 FastTree -nt -gtr < miseq.seq1.trim.contigs.good.unique.good.filter.unique.precluster.pick.rep.fasta > overall.representation.sequence.tree
 
-library(phangorn)
 library(picante)
 phy<-read.tree("overall.representation.sequence.tre")
 phy
